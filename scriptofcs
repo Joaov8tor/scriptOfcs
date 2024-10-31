@@ -1,0 +1,98 @@
+-- Script Principal
+local Player = game.Players.LocalPlayer
+local Mouse = Player:GetMouse()
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+-- Criar um painel
+local ScreenGui = Instance.new("ScreenGui", Player.PlayerGui)
+local Panel = Instance.new("Frame", ScreenGui)
+Panel.Size = UDim2.new(0, 300, 0, 400)
+Panel.Position = UDim2.new(0.5, -150, 0.5, -200)
+Panel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Panel.Visible = true
+
+-- Criar um título para o painel
+local Title = Instance.new("TextLabel", Panel)
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Text = "Script Hub"
+Title.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+
+-- Função para adicionar ESP
+local function addESP(player)
+    local esp = Instance.new("BillboardGui")
+    esp.Size = UDim2.new(0, 100, 0, 50)
+    esp.Adornee = player.Character.Head
+    esp.AlwaysOnTop = true
+    esp.ExtentsOffset = Vector3.new(0, 2, 0)
+    
+    local label = Instance.new("TextLabel", esp)
+    label.Text = player.Name
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1, 1, 0) -- Amarelo
+    label.TextScaled = true
+
+    esp.Parent = player.Character.Head
+    return esp
+end
+
+-- Função para ver FPS, Ping e Resolução
+local function displayInfo()
+    while true do
+        wait(1) -- Atualiza a cada segundo
+        local fps = math.floor(1 / RunService.RenderStepped:Wait())
+        local ping = Player:GetNetworkPing()
+        local res = workspace.CurrentCamera.ViewportSize
+
+        print("FPS: " .. fps .. " | Ping: " .. ping .. "ms | Resolução: " .. res.X .. "x" .. res.Y)
+    end
+end
+
+-- Botão para abrir/fechar o painel
+local toggleButton = Instance.new("TextButton", ScreenGui)
+toggleButton.Size = UDim2.new(0, 100, 0, 50)
+toggleButton.Position = UDim2.new(0.5, -50, 0.5, -200)
+toggleButton.Text = "Toggle Painel"
+toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.MouseButton1Click:Connect(function()
+    Panel.Visible = not Panel.Visible
+end)
+
+-- Copiar Nickname
+local copyTextbox = Instance.new("TextBox", Panel)
+copyTextbox.Size = UDim2.new(1, 0, 0, 50)
+copyTextbox.Position = UDim2.new(0, 0, 0.1, 0)
+copyTextbox.Text = "Clique em um jogador"
+copyTextbox.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+-- Função para copiar o nome ao clicar no jogador
+Mouse.Button1Down:Connect(function()
+    local targetPlayer = Mouse.Target and Players:GetPlayerFromCharacter(Mouse.Target.Parent)
+    if targetPlayer then
+        copyTextbox.Text = targetPlayer.Name
+        setclipboard(targetPlayer.Name) -- Copia o nome para a área de transferência
+    end
+end)
+
+-- Atualizar informações e adicionar ESP para jogadores
+for _, player in pairs(Players:GetPlayers()) do
+    if player ~= Player then
+        addESP(player)
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        addESP(player)
+    end)
+end)
+
+-- Iniciar a exibição de informações
+displayInfo()
+
+
